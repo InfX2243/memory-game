@@ -1,3 +1,18 @@
+:root {
+  --bg-main: #0f172a;        /* Dark navy */
+  --card-front: #2563eb;    /* Blue */
+  --card-hover: #1d4ed8;
+  --card-back: #f8fafc;     /* Soft white */
+  --success: #22c55e;       /* Green */
+  --error: #ef4444;         /* Red */
+  --accent: #facc15;        /* Gold */
+}
+
+body {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  min-height: 100vh;
+}
+
 .card-box {
   height: 100px;
   cursor: pointer;
@@ -29,6 +44,15 @@
   border-radius: 8px;
 }
 
+.card-box:hover .card-front {
+  background: var(--card-hover);
+  transform: scale(1.07);
+}
+
+.bad { color: #ef4444; }
+.ok { color: #facc15; }
+.good { color: #22c55e; }
+
 .card-front {
   background: #0d6efd;
   color: white;
@@ -37,4 +61,35 @@
 .card-back {
   background: white;
   transform: rotateY(180deg);
+}
+
+.card-box.matched .card-back {
+  background: var(--success);
+  color: white;
+  animation: pop 0.4s ease;
+}
+
+.container {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+  75% { transform: translateX(-6px); }
+  100% { transform: translateX(0); }
+}
+
+.card-box.wrong {
+  animation: shake 0.4s;
 }

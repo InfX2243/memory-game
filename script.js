@@ -1,6 +1,7 @@
 const gameBoard = document.getElementById("gameBoard");
 const movesEl = document.getElementById("moves");
 const resetBtn = document.getElementById("resetBtn");
+const progressBar = document.getElementById("progressBar");
 
 const allSymbols = [
   "🍎","🍌","🍇","🍓","🍉","🍒","🥝","🍍",
@@ -8,28 +9,32 @@ const allSymbols = [
   "🍅","🍆","🥕","🌽","🥔","🍄"
 ];
 
-// Level progression
+// Levels
 const levels = [
-  { cols: 4, rows: 4 }, // 16 cards
-  { cols: 6, rows: 4 }, // 24 cards
-  { cols: 6, rows: 6 }, // 36 cards
-  { cols: 8, rows: 6 }  // 48 cards
+  { cols: 4, rows: 4 },
+  { cols: 6, rows: 4 },
+  { cols: 6, rows: 6 },
+  { cols: 8, rows: 6 }
 ];
 
 let currentLevel = 0;
-
 let cards = [];
 let totalPairs = 0;
 let matchedPairs = 0;
 let moves = 0;
-
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
 
-// Shuffle cards
+// Shuffle
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
+}
+
+// Update progress bar
+function updateProgress() {
+  const percent = (matchedPairs / totalPairs) * 100;
+  progressBar.style.width = percent + "%";
 }
 
 // Create board
@@ -57,7 +62,7 @@ function createBoard(cols) {
   });
 }
 
-// Flip logic
+// Flip card
 function flipCard() {
   if (lockBoard || this.classList.contains("flipped")) return;
 
@@ -75,13 +80,17 @@ function flipCard() {
   checkMatch();
 }
 
-// Match logic
+// Check match
 function checkMatch() {
   const firstSymbol = firstCard.querySelector(".card-back").textContent;
   const secondSymbol = secondCard.querySelector(".card-back").textContent;
 
   if (firstSymbol === secondSymbol) {
     matchedPairs++;
+    firstCard.classList.add("matched");
+    secondCard.classList.add("matched");
+
+    updateProgress(); //update bar on match
     resetTurn();
 
     // Level complete
@@ -98,11 +107,15 @@ function checkMatch() {
         startNewGame();
       }, 600);
     }
+
   } else {
     lockBoard = true;
+    firstCard.classList.add("wrong");
+    secondCard.classList.add("wrong");
+
     setTimeout(() => {
-      firstCard.classList.remove("flipped");
-      secondCard.classList.remove("flipped");
+      firstCard.classList.remove("wrong", "flipped");
+      secondCard.classList.remove("wrong", "flipped");
       resetTurn();
     }, 800);
   }
@@ -114,11 +127,10 @@ function resetTurn() {
   lockBoard = false;
 }
 
-// Start / restart game
+// Start game
 function startNewGame() {
   const { cols, rows } = levels[currentLevel];
-  const totalCards = cols * rows;
-  totalPairs = totalCards / 2;
+  totalPairs = (cols * rows) / 2;
 
   const selectedSymbols = allSymbols.slice(0, totalPairs);
   cards = [...selectedSymbols, ...selectedSymbols];
@@ -126,6 +138,7 @@ function startNewGame() {
   matchedPairs = 0;
   moves = 0;
   movesEl.textContent = moves;
+  progressBar.style.width = "0%"; // reset bar
 
   resetTurn();
   createBoard(cols);

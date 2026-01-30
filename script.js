@@ -3,18 +3,19 @@ const movesEl = document.getElementById("moves");
 const resetBtn = document.getElementById("resetBtn");
 const progressBar = document.getElementById("progressBar");
 
+const levelModal = document.getElementById("levelModal");
+const modalMessage = document.getElementById("modalMessage");
+const nextLevelBtn = document.getElementById("nextLevelBtn");
+
 const allSymbols = [
   "🍎","🍌","🍇","🍓","🍉","🍒","🥝","🍍",
-  "🥭","🍑","🍋","🍐","🍏","🍊","🥥","🍈",
-  "🍅","🍆","🥕","🌽","🥔","🍄"
+  "🥭","🍑","🍋","🍐","🍏","🍊","🥥","🍈"
 ];
 
-// Levels
 const levels = [
   { cols: 4, rows: 4 },
   { cols: 6, rows: 4 },
-  { cols: 6, rows: 6 },
-  { cols: 8, rows: 6 }
+  { cols: 6, rows: 6 }
 ];
 
 let currentLevel = 0;
@@ -22,77 +23,56 @@ let cards = [];
 let totalPairs = 0;
 let matchedPairs = 0;
 let moves = 0;
+
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
 
 
-const levelModal = document.getElementById("levelModal");
-const modalMessage = document.getElementById("modalMessage");
-const nextLevelBtn = document.getElementById("nextLevelBtn");
-
-function showLevelModal(message) {
-  modalMessage.textContent = message;
-  levelModal.style.display = "flex";
-  confetti({
-    particleCount: 100,
-    spread: 70,
-    origin: { y: 0.6 }
-  });
+// HELPERS
+function shuffle(arr) {
+  return arr.sort(() => Math.random() - 0.5);
 }
 
-function hideLevelModal() {
-  levelModal.style.display = "none";
-}
-
-// When user clicks Next Level
-nextLevelBtn.addEventListener("click", () => {
-  hideLevelModal();
-  currentLevel++;
-  if (currentLevel >= levels.length) {
-    alert("🏆 You completed all levels! Restarting...");
-    currentLevel = 0;
-  }
-  startNewGame();
-});
-
-// Shuffle
-function shuffle(array) {
-  return array.sort(() => Math.random() - 0.5);
-}
-
-// Update progress bar
 function updateProgress() {
-  const percent = (matchedPairs / totalPairs) * 100;
-  progressBar.style.width = percent + "%";
+  progressBar.style.width =
+    (matchedPairs / totalPairs) * 100 + "%";
 }
 
-// Create board
+
+//  BOARD CREATION
 function createBoard(cols) {
   gameBoard.innerHTML = "";
   shuffle(cards);
 
-  const colSize = 12 / cols;
+  const cardSize = 100;
+  const gap = 16;
+
+  gameBoard.style.gridTemplateColumns =
+    `repeat(${cols}, ${cardSize}px)`;
+  gameBoard.style.gap = `${gap}px`;
+
+  const boardWrapper = document.querySelector(".board-wrapper");
+  boardWrapper.style.width =
+    cols * cardSize + (cols - 1) * gap + "px";
 
   cards.forEach(symbol => {
-    const col = document.createElement("div");
-    col.className = `col-${colSize}`;
+    const card = document.createElement("div");
+    card.className = "card-box";
 
-    col.innerHTML = `
-      <div class="card-box">
-        <div class="card-inner">
-          <div class="card-front">?</div>
-          <div class="card-back">${symbol}</div>
-        </div>
+    card.innerHTML = `
+      <div class="card-inner">
+        <div class="card-front">?</div>
+        <div class="card-back">${symbol}</div>
       </div>
     `;
 
-    col.querySelector(".card-box").addEventListener("click", flipCard);
-    gameBoard.appendChild(col);
+    card.addEventListener("click", flipCard);
+    gameBoard.appendChild(card);
   });
 }
 
-// Flip card
+// GAME LOGIC
 function flipCard() {
   if (lockBoard || this.classList.contains("flipped")) return;
 
@@ -110,74 +90,77 @@ function flipCard() {
   checkMatch();
 }
 
-// Check match
 function checkMatch() {
-  const firstSymbol = firstCard.querySelector(".card-back").textContent;
-  const secondSymbol = secondCard.querySelector(".card-back").textContent;
+  const a = firstCard.querySelector(".card-back").textContent;
+  const b = secondCard.querySelector(".card-back").textContent;
 
-  if (firstSymbol === secondSymbol) {
+  if (a === b) {
     matchedPairs++;
     firstCard.classList.add("matched");
     secondCard.classList.add("matched");
-
-    updateProgress(); //update bar on match
+    updateProgress();
     resetTurn();
-
-    // Level complete
-    if (matchedPairs === totalPairs) {
-      setTimeout(() => {
-        showLevelModal(`🎉 You completed Level ${currentLevel + 1}!`);
-        currentLevel++;
-        if (currentLevel >= levels.length) {
-          alert("🏆 You completed all levels! Restarting...");
-          currentLevel = 0;
-        }
-
-        startNewGame();
-      }, 600);
-    }
-
   } else {
     lockBoard = true;
-    firstCard.classList.add("wrong");
-    secondCard.classList.add("wrong");
+
+    [firstCard, secondCard].forEach(card => {
+      card.classList.remove("wrong");
+      void card.offsetWidth;
+      card.classList.add("wrong");
+    });
 
     setTimeout(() => {
-      firstCard.classList.remove("wrong", "flipped");
-      secondCard.classList.remove("wrong", "flipped");
+      firstCard.classList.remove("flipped", "wrong");
+      secondCard.classList.remove("flipped", "wrong");
       resetTurn();
-    }, 800);
+    }, 700);
+  }
+
+  if (matchedPairs === totalPairs) {
+    setTimeout(() => {
+      modalMessage.textContent =
+        `You completed level ${currentLevel + 1}!`;
+      levelModal.style.display = "flex";
+      confetti();
+    }, 500);
   }
 }
 
-// Reset turn
 function resetTurn() {
   [firstCard, secondCard] = [null, null];
   lockBoard = false;
 }
 
-// Start game
-function startNewGame() {
+// GAME CONTROL
+function startGame() {
   const { cols, rows } = levels[currentLevel];
   totalPairs = (cols * rows) / 2;
 
-  const selectedSymbols = allSymbols.slice(0, totalPairs);
-  cards = [...selectedSymbols, ...selectedSymbols];
+  cards = [
+    ...allSymbols.slice(0, totalPairs),
+    ...allSymbols.slice(0, totalPairs)
+  ];
 
   matchedPairs = 0;
   moves = 0;
-  movesEl.textContent = moves;
-  progressBar.style.width = "0%"; // reset bar
+  movesEl.textContent = 0;
+  progressBar.style.width = "0%";
 
   resetTurn();
   createBoard(cols);
 }
 
-// Reset button
 resetBtn.addEventListener("click", () => {
   currentLevel = 0;
-  startNewGame();
+  startGame();
 });
 
-// Init
-startNewGame();
+nextLevelBtn.addEventListener("click", () => {
+  levelModal.style.display = "none";
+  currentLevel = (currentLevel + 1) % levels.length;
+  startGame();
+});
+
+
+// INIT
+startGame();

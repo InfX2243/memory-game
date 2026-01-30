@@ -1,22 +1,109 @@
 :root {
-  --bg-main: #0f172a;        /* Dark navy */
-  --card-front: #2563eb;    /* Blue */
-  --card-hover: #1d4ed8;
-  --card-back: #f8fafc;     /* Soft white */
-  --success: #22c55e;       /* Green */
-  --error: #ef4444;         /* Red */
-  --accent: #facc15;        /* Gold */
+  --bg-main: #0f172a;
+  --bg-accent: #1e1b4b;
+
+  --card-front: #6366f1;
+  --card-front-hover: #818cf8;
+  --card-back: #020617;
+
+  --success: #22c55e;
+  --error: #fb7185;
+  --accent: #38bdf8;
+
+  --text-light: #e5e7eb;
 }
 
 body {
-  background: linear-gradient(135deg, #0f172a, #1e293b);
   min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg-main), var(--bg-accent));
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+h1 {
+  text-align: center;
+}
+.container {
+  background: #020617;
+  border-radius: 16px;
+  padding: 22px;
+  margin-top: 20px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+  color: var(--text-light);
+}
+
+h1 {
+  margin-bottom: 12px;
+}
+
+.progress-wrapper {
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+  margin-bottom: 16px;
+}
+
+.custom-progress {
+  height: 12px;
+  background: #020617;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 0 0 6px rgba(56,189,248,0.3);
+}
+
+.custom-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #38bdf8, #6366f1);
+  box-shadow:
+    0 0 6px rgba(56,189,248,0.9),
+    0 0 12px rgba(99,102,241,0.8);
+  transition: width 0.3s ease;
+}
+
+.board-wrapper {
+  margin: 0 auto;
+  width: fit-content;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.moves span {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+#resetBtn {
+  background: var(--card-front);
+  border: none;
+  padding: 6px 16px;
+  border-radius: 8px;
+  color: white;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+#resetBtn:hover {
+  background: var(--card-front-hover);
+}
+
+#gameBoard {
+  display: grid;
+  gap: 16px;
+  justify-content: center;
 }
 
 .card-box {
+  width: 100px;
   height: 100px;
   cursor: pointer;
-  perspective: 1000px;
+  perspective: 800px;
 }
 
 .card-inner {
@@ -24,7 +111,7 @@ body {
   height: 100%;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 0.5s;
+  transition: transform 0.35s ease;
 }
 
 .card-box.flipped .card-inner {
@@ -34,88 +121,65 @@ body {
 .card-front,
 .card-back {
   position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
-  border-radius: 8px;
+  font-size: 1.9rem;
+  border-radius: 10px;
+  backface-visibility: hidden;
 }
 
-.card-box:hover .card-front {
-  background: var(--card-hover);
-  transform: scale(1.07);
-}
-
-.bad { color: #ef4444; }
-.ok { color: #facc15; }
-.good { color: #22c55e; }
-
+/* Front face */
 .card-front {
-  background: #0d6efd;
+  background: var(--card-front);
   color: white;
 }
 
+.card-box:hover .card-front {
+  background: var(--card-front-hover);
+}
+
+/* Back face */
 .card-back {
-  background: white;
+  background: var(--card-back);
+  color: var(--accent);
   transform: rotateY(180deg);
 }
 
 .card-box.matched .card-back {
   background: var(--success);
-  color: white;
-  animation: pop 0.4s ease;
-}
-
-.container {
-  background: #f8fafc;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  color: #022c22;
 }
 
 .card-box.wrong {
-  animation: shake 0.4s;
+  animation: shake 0.35s;
 }
 
-@keyframes pop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-  100% { transform: scale(1); }
+.card-box.wrong .card-back {
+  background: var(--error);
+  color: white;
 }
 
 @keyframes shake {
   0% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  50% { transform: translateX(6px); }
-  75% { transform: translateX(-6px); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
   100% { transform: translateX(0); }
 }
 
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  display: none; /* hidden by default */
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
 }
 
 .modal-content {
   background: #f8fafc;
-  padding: 40px 30px;
-  border-radius: 16px;
-  text-align: center;
-  animation: popIn 0.5s ease forwards;
-}
-
-@keyframes popIn {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
+  padding: 32px 26px;
+  border-radius: 14px;
 }

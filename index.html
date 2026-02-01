@@ -15,8 +15,10 @@
 <body>
 
 <div class="container">
-  <h1>Memory Card Game</h1>
-
+  <div class="logo-wrapper">
+    <img src="assets/logo.png" alt="Flipzy logo">
+    <h1>Flipzy</h1>
+  </div>
   <!-- Progress bar (always visible) -->
   <div class="progress-wrapper">
     <div class="progress custom-progress">
@@ -29,8 +31,8 @@
     <div class="game-header">
       <div class="moves">Moves: <span id="moves">0</span></div>
       <button id="resetBtn">Reset</button>
+      <button id="restartBtn">Restart</button>
     </div>
-
     <div id="gameBoard"></div>
   </div>
 </div>
@@ -47,6 +49,6 @@
 </div>
 
 <script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script> -->
 </body>
 </html>

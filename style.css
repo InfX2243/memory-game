@@ -15,7 +15,10 @@
 
 body {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-main), var(--bg-accent));
+  overflow: hidden;
+  /* background: linear-gradient(135deg, var(--bg-main), var(--bg-accent));
+  background: var(--bg-accent); */
+  background: #02061f;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -25,11 +28,14 @@ h1 {
   text-align: center;
 }
 .container {
-  background: #020617;
+  max-height: 95vh;
+  overflow: hidden;
+  /* background: #02061f; */
+  background: var(--bg-accent);
   border-radius: 16px;
   padding: 22px;
-  margin-top: 20px;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.5);
+  margin-top: 35px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.7);
   color: var(--text-light);
 }
 
@@ -74,12 +80,25 @@ h1 {
   margin-bottom: 14px;
 }
 
+.logo-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.logo-wrapper img {
+  max-width: 100px;
+  /* width: 100%; */
+  height: auto;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));
+}
+
 .moves span {
   color: var(--accent);
   font-weight: 600;
 }
 
-#resetBtn {
+#restartBtn, #resetBtn {
   background: var(--card-front);
   border: none;
   padding: 6px 16px;
@@ -89,7 +108,7 @@ h1 {
   cursor: pointer;
 }
 
-#resetBtn:hover {
+#restartBtn:hover {
   background: var(--card-front-hover);
 }
 
@@ -97,11 +116,12 @@ h1 {
   display: grid;
   gap: 16px;
   justify-content: center;
+  transition: transform 0.3s ease;
 }
 
 .card-box {
-  width: 100px;
-  height: 100px;
+  width: 100%;
+  aspect-ratio: 1;
   cursor: pointer;
   perspective: 800px;
 }

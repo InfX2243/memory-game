@@ -9,8 +9,8 @@ const resetBtn = document.getElementById("resetBtn");
 const STORAGE_KEY = "flipzy-game-state";
 
 const allSymbols = [
-  "🍎", "🍌", "🍇", "🍓", "🍉", "🍒", "🥝", "🍍", 
-  "🥭", "🍑", "🍋", "🍐", "🍏", "🍊", "🥥", "🍈"
+  "🍎", "🍌", "🍇", "🍓", "🍉", "🍒", "🥝", "🍍", "🍅", "🥧",
+  "🥭", "🍑", "🍋", "🍐", "🍏", "🍊", "🥥", "🍈", "🥑"
 ];
 
 const levels = [
@@ -35,6 +35,7 @@ function shuffle(arr) {
   return arr.sort(() => Math.random() - 0.5);
 }
 
+// UPDATE PROGRESS BAR
 function updateProgress() {
   progressBar.style.width = (matchedPairs / totalPairs) * 100 + "%";
 }
@@ -79,7 +80,7 @@ function loadGameState() {
       moves = state.moves;
       movesEl.textContent = moves;
     }
-    if (typeof state.matchedPairs === "number" && typeof state.matchedPairs === "number") {
+    if (typeof state.matchedPairs === "number") {
       matchedPairs = state.matchedPairs;
       totalPairs = state.totalPairs;
       updateProgress();
@@ -90,12 +91,30 @@ function loadGameState() {
 }
 
 // GET CARD SIZE
+// function getCardSize(cols, rows) {
+//   const maxBoardHeight = window.innerHeight * 0.6;
+//   const gap = 16;
+//   const availableHeight = maxBoardHeight - (rows - 1) * gap;
+//   return Math.floor(availableHeight / rows);
+// }
 function getCardSize(cols, rows) {
-  const maxBoardHeight = window.innerHeight * 0.6;
   const gap = 16;
+
+  const container = document.querySelector(".container");
+  const containerPadding = 32; // approx left + right padding
+  const maxBoardWidth = container.clientWidth - containerPadding;
+
+  const maxBoardHeight = window.innerHeight * 0.6;
+
+  const availableWidth = maxBoardWidth - (cols - 1) * gap;
   const availableHeight = maxBoardHeight - (rows - 1) * gap;
-  return Math.floor(availableHeight / rows);
+
+  const cardWidth = Math.floor(availableWidth / cols);
+  const cardHeight = Math.floor(availableHeight / rows);
+
+  return Math.min(cardWidth, cardHeight);
 }
+
 
 // BOARD CREATION
 function createBoard(cols, rows) {
@@ -121,7 +140,6 @@ function createBoard(cols, rows) {
     `;
     if (matchedSymbols.has(symbol)) {
       card.classList.add("flipped", "matched");
-      // matchedPairs++;
     }
 
     card.addEventListener("click", flipCard);
@@ -142,6 +160,7 @@ function flipCard() {
   secondCard = this;
   moves++;
   movesEl.textContent = moves;
+  // saveGameState(); 
   checkMatch();
 }
 
@@ -193,6 +212,7 @@ function startGame() {
   const { cols, rows } = levels[currentLevel];
   totalPairs = (cols * rows) / 2;
 
+  // Set cards based on saved state or generate new
   if (savedCardsOrder) {
     cards = savedCardsOrder;
   } else {
@@ -203,13 +223,13 @@ function startGame() {
     shuffle(cards);
   }
 
-  if (matchedPairs > 0) {
-    updateProgress();
-  }
+  // Dynamically set matchedPairs based on matchedSymbols (fixes progress persistence)
+  matchedPairs = matchedSymbols.size;
+  updateProgress();
 
-  matchedPairs = 0;
-  moves = 0;
-  movesEl.textContent = 0;
+  // REMOVED: moves = 0; and movesEl.textContent = 0; (fixes moves persistence)
+  // loadGameState() already handles this
+
   resetTurn();
   createBoard(cols, rows);
 }
@@ -217,6 +237,8 @@ function startGame() {
 // RESET GAME TO FIRST LEVEL
 function resetToFirstLevel() {
   currentLevel = 0;
+  moves = 0;
+  movesEl.textContent = 0;
   matchedPairs = 0;
   matchedSymbols.clear();
   savedCardsOrder = null;
@@ -227,6 +249,9 @@ function resetToFirstLevel() {
 resetBtn.addEventListener("click", resetToFirstLevel);
 
 restartBtn.addEventListener("click", () => {
+  moves = 0;
+  movesEl.textContent = 0;
+  matchedPairs = 0;
   matchedSymbols.clear();
   savedCardsOrder = null;
   saveGameState();
@@ -235,11 +260,13 @@ restartBtn.addEventListener("click", () => {
 
 nextLevelBtn.addEventListener("click", () => {
   levelModal.style.display = "none";
+  moves = 0;
+  movesEl.textContent = 0;
   currentLevel = (currentLevel + 1) % levels.length;
   matchedSymbols.clear();
   savedCardsOrder = null;
-  saveGameState();
   startGame();
+  saveGameState();
 });
 
 // INIT
